@@ -1,7 +1,7 @@
 # rollup-plugin-mjs-entry
 
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![Build Status](https://travis-ci.com/swansontec/rollup-plugin-mjs-entry.svg?branch=master)](https://travis-ci.com/swansontec/rollup-plugin-mjs-entry)
+[![Build Status](https://travis-ci.com/swansontec/rollup-plugin-mjs-entry.svg?branch=main)](https://travis-ci.com/swansontec/rollup-plugin-mjs-entry)
 
 Node.js finally supports native ES module syntax! Hooray! If you are publishing a module on NPM, you should definitely support this.
 
