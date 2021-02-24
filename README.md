@@ -3,9 +3,18 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Build Status](https://travis-ci.com/swansontec/rollup-plugin-mjs-entry.svg?branch=main)](https://travis-ci.com/swansontec/rollup-plugin-mjs-entry)
 
-Node.js finally supports native ES module syntax! Hooray! If you are publishing a module on NPM, you should definitely support this.
+Node.js finally supports native ES module syntax (hooray)! If you are publishing a package on NPM, you should definitely support this. Older versions of Node.js will still exist for a while, though, so you should keep supporting those too. The [best practice](https://nodejs.org/dist/latest-v15.x/docs/api/packages.html#packages_approach_1_use_an_es_module_wrapper) is to keep shipping your package as CommonJS, and then provide an ES module wrapper so newer versions of Node.js can use named exports.
 
-Older versions of Node.js will be around for a while, though, so you'll need to support those too. The [best practice](https://nodejs.org/dist/latest-v15.x/docs/api/packages.html#packages_approach_1_use_an_es_module_wrapper) is to ship your package as CommonJS, and then provide an ES module wrapper so your users can take advantage of named exports. This plugin will generate one of these module wrappers for each CommonJS entry point Rollup produces.
+To accomplish this, rollup-plugin-mjs-entry will generate an ".mjs" wrapper for each CommonJS entry point Rollup produces. Here is an example of one of these generated wrappers:
+
+```js
+import cjs from './your-entry.js'
+
+export const name1 = cjs.name1;
+export const name2 = cjs.name2;
+```
+
+Now newer versions of Node.js can use the named exports in `your-entry.mjs`, while older versions can keep using the CommonJS bundle in `your-entry.js`.
 
 ## Usage
 
@@ -21,17 +30,7 @@ export default {
 }
 ```
 
-With this config, Rollup will generate two output files, `lib/index.js` and `lib/index.mjs`. The `lib/index.mjs` output file might look something like this:
-
-```js
-import cjs from './index.js'
-
-export const name1 = cjs.name1;
-export const name2 = cjs.name2;
-// and so forth for each named export in your package...
-```
-
-Finally, your `package.json` file should include lines like the following:
+With this config, Rollup will generate two output files, `lib/index.js` and `lib/index.mjs`. To expose these files to the outside world, your `package.json` file should include lines like the following:
 
 ```js
 {
@@ -46,11 +45,9 @@ Finally, your `package.json` file should include lines like the following:
 }
 ```
 
-Older versions of Node.js understand the "main" field, while newer versions of Node.js understand the "exports" field, which tells Node.js what to do in each mode.
+Older versions of Node.js understand the "main" field, while newer versions of Node.js understand the "exports" field, which tells Node.js what to do in each mode. The "exports" field also includes an entry for `package.json`, since many tools expect this file to be importable.
 
-### Default Export
-
-With the setup above, users can import your library using either:
+Now your users can import your library using either:
 
 ```js
 // CommonJS:
@@ -60,7 +57,9 @@ const yourPackage = require('your-package')
 import { name1, name2 } from 'your-package'
 ```
 
-However, the following syntax will not work yet:
+### Adding a Default Export
+
+With the setup above, the following import syntax will no longer work:
 
 ```js
 import yourPackage from 'your-package'
@@ -78,4 +77,8 @@ export default {
 }
 ```
 
-This could be useful if you are adding ES module support for the first time, and would like to avoid making this a breaking change.
+This could be useful if you are adding ES module support for the first time, and would like to make this a non-breaking change as users transition from the old default-based syntax to the name-based syntax.
+
+If an ES module already provides its own default export, this setting will have no effect.
+
+New projects should just leave this setting turned off.
